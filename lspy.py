@@ -32,6 +32,7 @@ def gitCallGetReturnValue(gitdir, git, args, Verbose=False):
     callargs = getGitBaseArgs(gitdir,git)
     callargs.extend(args)
     if Verbose:
+        print('CWD="{}"'.format(os.path.abspath(os.curdir)))
         print(callargs)
     return subprocess.call(callargs)
 
@@ -39,6 +40,7 @@ def gitCallGetOutput(gitdir, git, args, Verbose=False):
     callargs = getGitBaseArgs(gitdir,git)
     callargs.extend(args)
     if Verbose:
+        print('CWD="{}"'.format(os.path.abspath(os.curdir)))
         print(callargs)
     return subprocess.check_output(callargs).decode('utf-8')
 
@@ -46,17 +48,18 @@ def hasGitStagedChanges(gitdir, git, Verbose=False):
     ret = gitCallGetReturnValue(gitdir,git,[
         #'diff-index', '--quiet', '--cached', 'HEAD', '--',        
         'diff-files', '--quiet',
-    ])
+    ],Verbose=Verbose)
     if ret != 0 and ret != 1:
         exit('Ambiguous return code "{}" from git'.format(ret))
     return ret==1
 
 def hasGitUntrackedAndUnignoredFiles(gitdir, git, Verbose=False):
     ret = gitCallGetOutput(gitdir,git,
-        'ls-files --exclude-standard --others'.split(' ')
+        'ls-files --exclude-standard --others'.split(' '),
+        Verbose=Verbose
     )
     return not not ret
 
 def isGitCommited(gitdir, git, Verbose=False):
     ''' check dir is committed (no untracking and stating) '''
-    return hasGitStagedChanges(gitdir,git) or hasGitUntrackedAndUnignoredFiles(gitdir,git)
+    return not hasGitStagedChanges(gitdir,git,Verbose=Verbose) and not hasGitUntrackedAndUnignoredFiles(gitdir,git,Verbose=Verbose)
