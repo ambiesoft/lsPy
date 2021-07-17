@@ -60,6 +60,16 @@ def hasGitUntrackedAndUnignoredFiles(gitdir, git, Verbose=False):
     )
     return not not ret
 
+def hasGitStatusOutput(gitdir, git, Verbose=False):
+    ret = gitCallGetOutput(gitdir,git,
+        'status --short'.split(' '),
+        Verbose=Verbose
+    )
+    return not not ret
+
 def isGitCommited(gitdir, git, Verbose=False):
     ''' check dir is committed (no untracking and stating) '''
-    return not hasGitStagedChanges(gitdir,git,Verbose=Verbose) and not hasGitUntrackedAndUnignoredFiles(gitdir,git,Verbose=Verbose)
+    # not work on windows
+    #return not hasGitStagedChanges(gitdir,git,Verbose=Verbose) and not hasGitUntrackedAndUnignoredFiles(gitdir,git,Verbose=Verbose)
+
+    return not hasGitStatusOutput(gitdir,git,Verbose=Verbose)
